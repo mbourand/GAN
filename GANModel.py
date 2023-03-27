@@ -27,7 +27,7 @@ class GANModel(Model):
 	def discriminator_loss(self, real_output, fake_output):
 		real_loss = self.gan_loss(tf.ones_like(real_output) * (1 - SMOOTH), real_output)
 		fake_loss = self.gan_loss(tf.zeros_like(fake_output), fake_output)
-		return 0.5 * (real_loss + fake_loss)
+		return real_loss + fake_loss
 
 	@tf.function
 	def train_step(self, data):
@@ -49,9 +49,9 @@ class GANModel(Model):
 			self.discriminator_optimizer.apply_gradients(zip(discriminator_gradient, self.discriminator.trainable_variables))
 
 		return { 'generator_loss': generator_loss, 'discriminator_loss': discriminator_loss }
-	
+
 	def predict(self, x, **kwargs):
 		return self.generator(x, training=False)
-	
+
 	def call(self, inputs, training=None, mask=None):
 		return super().call(inputs, training, mask)
