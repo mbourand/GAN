@@ -6,24 +6,25 @@ from keras.regularizers import *
 from keras.activations import *
 
 from EqualizedLRDense import EqualizedLRDense
+from EqualizedLRConv2D import EqualizedLRConv2D
 
 def get_discriminator_model():
 	discriminator = Sequential([
 		Input(shape=(IMAGE_SIZE, IMAGE_SIZE, IMAGE_CHANNEL)),
 		
-		Conv2D(3, KERNEL_SIZE, strides=2, padding='same'),
+		Conv2D(3, (KERNEL_SIZE, KERNEL_SIZE), strides=2, padding='same'),
 		LeakyReLU(LEAKY_RELU_ALPHA),
 		BatchNormalization(),
 		
-		Conv2D(128, KERNEL_SIZE, strides=2, padding='same'),
+		Conv2D(128, (KERNEL_SIZE, KERNEL_SIZE), strides=2, padding='same'),
 		LeakyReLU(LEAKY_RELU_ALPHA),
 		BatchNormalization(),
 		
-		Conv2D(256, KERNEL_SIZE, strides=2, padding='same'),
+		Conv2D(256, (KERNEL_SIZE, KERNEL_SIZE), strides=2, padding='same'),
 		LeakyReLU(LEAKY_RELU_ALPHA),
 		BatchNormalization(),
 
-		Conv2D(512, KERNEL_SIZE, strides=2, padding='same'),
+		Conv2D(512, (KERNEL_SIZE, KERNEL_SIZE), strides=2, padding='same'),
 		LeakyReLU(LEAKY_RELU_ALPHA),
 
 		Flatten(),
