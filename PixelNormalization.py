@@ -8,6 +8,6 @@ class PixelNormalization(Layer):
 
 	def call(self, inputs):
 		return inputs / tf.sqrt(tf.reduce_mean(tf.square(inputs), axis=-1, keepdims=True) + 1e-8)
- 
+
 	def compute_output_shape(self, input_shape):
 		return input_shape
