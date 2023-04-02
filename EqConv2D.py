@@ -1,10 +1,10 @@
-from keras.layers import Layer, Conv2D
+from keras.layers import Layer
 import tensorflow as tf
 from keras.initializers import Constant, RandomNormal
 
 from settings import *
 
-class EqualizedLRConv2D(Layer):
+class EqConv2D(Layer):
 	def __init__(self, filters, kernel_size, strides=1, bias_init_value=0, **kwargs):
 		super().__init__(**kwargs)
 		self.filters = filters
@@ -13,12 +13,12 @@ class EqualizedLRConv2D(Layer):
 		self.bias_init_value = bias_init_value
 
 	def build(self, input_shape):
-		weight_shape = (self.kernel_size[0], self.kernel_size[1], input_shape[3], self.filters)
+		weight_shape = (self.kernel_size[0], self.kernel_size[1], input_shape[-1], self.filters)
 
 		self.equalized_weights = self.add_weight(
 			name='equalized_weights',
 			shape=weight_shape,
-			initializer=RandomNormal(stddev=RANDOM_NORMAL_STD_DEV),
+			initializer=RandomNormal(stddev=1),
 			trainable=True
 		)
 		self.equalized_biases = self.add_weight(
@@ -48,6 +48,6 @@ class EqualizedLRConv2D(Layer):
 			'filters': self.filters,
 			'kernel_size': self.kernel_size,
 			'strides': self.strides,
-			'bias_init_value': self.bias_init_value
+			'bias_init_value': self.bias_init_value,
 		})
 		return config
