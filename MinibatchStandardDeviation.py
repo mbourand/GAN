@@ -6,14 +6,13 @@ class MinibatchStandardDeviation(Layer):
 		super().__init__(**kwargs)
 
 	def call(self, inputs):
-		square_diffs = tf.square(inputs - tf.reduce_mean(inputs, axis=0, keepdims=True))
-		mean_square_diff = tf.reduce_mean(square_diffs, axis=0, keepdims=True)
-		stddev = tf.sqrt(mean_square_diff)
-
-		mean_stddev = tf.reduce_mean(stddev, keepdims=True)
-
+		mean = tf.reduce_mean(inputs, axis=0, keepdims=True)
+		squ_diffs = tf.square(inputs - mean)
+		mean_sq_diff = tf.reduce_mean(squ_diffs, axis=0, keepdims=True) + 1e-8
+		stdev = tf.sqrt(mean_sq_diff)
+		mean_pix = tf.reduce_mean(stdev, keepdims=True)
 		shape = tf.shape(inputs)
-		output = tf.tile(mean_stddev, [shape[0], shape[1], shape[2], 1])
+		output = tf.tile(mean_pix, (shape[0], shape[1], shape[2], 1))
 
 		return tf.concat([inputs, output], axis=-1)
 

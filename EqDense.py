@@ -4,7 +4,7 @@ from keras.activations import *
 from keras.initializers import Constant, RandomNormal
 from settings import *
 
-class EqualizedLRDense(Layer):
+class EqDense(Layer):
 	def __init__(self, units, bias_init_value=0, use_bias=True, learning_rate_scale=1, **kwargs):
 		super().__init__(**kwargs)
 		self.units = units
