@@ -10,5 +10,4 @@ class SaveModelCallback(Callback):
 		if not os.path.exists(MODEL_OUTPUT_PATH):
 			os.makedirs(MODEL_OUTPUT_PATH)
 
-		self.model.generator.save(f'{MODEL_OUTPUT_PATH}/generator.h5')
-		self.model.discriminator.save(f'{MODEL_OUTPUT_PATH}/discriminator.h5')
+		self.model.save_weights(MODEL_OUTPUT_PATH)
