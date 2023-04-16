@@ -27,6 +27,9 @@ class GANModel(Model):
 		self.generator_optimizer = Adam(learning_rate=ADAM_LEARNING_RATE, beta_1=ADAM_BETA1, beta_2=ADAM_BETA2, epsilon=ADAM_EPSILON)
 		self.discriminator_optimizer = Adam(learning_rate=ADAM_LEARNING_RATE, beta_1=ADAM_BETA1, beta_2=ADAM_BETA2, epsilon=ADAM_EPSILON)
 
+		self.moving_average_generator = tf.train.ExponentialMovingAverage(decay=MOVING_AVERAGE_DECAY)
+		self.moving_average_mapper = tf.train.ExponentialMovingAverage(decay=MOVING_AVERAGE_DECAY)
+
 		super().compile(**kwargs)
 
 	def get_w(self, batch_size):
@@ -86,6 +89,9 @@ class GANModel(Model):
 			self.generator_optimizer.apply_gradients(zip(generator_gradient, self.generator.trainable_variables + self.mapper.trainable_variables))
 			self.discriminator_optimizer.apply_gradients(zip(discriminator_gradient, self.discriminator.trainable_variables))
 
+			self.moving_average_generator.apply(self.generator.trainable_variables)
+			self.moving_average_mapper.apply(self.mapper.trainable_variables)
+
 		self.step.assign_add(1)
 
 		return { 'generator_loss': generator_loss, 'discriminator_loss': discriminator_loss }
@@ -99,10 +105,12 @@ class GANModel(Model):
 		self.mapper.save_weights(os.path.join(filepath, 'mapper.h5'), overwrite, save_format, options)
 		self.generator.save_weights(os.path.join(filepath, 'generator.h5'), overwrite, save_format, options)
 		self.discriminator.save_weights(os.path.join(filepath, 'discriminator.h5'), overwrite, save_format, options)
-		tf.saved_model.save(self.step, os.path.join(filepath, 'step.h5'))
+		with open(os.path.join(filepath, 'step.txt'), 'w') as f:
+			f.write(str(self.step.numpy()))
 
 	def load_weights(self, filepath, by_name=False, skip_mismatch=False, options=None):
 		self.mapper.load_weights(os.path.join(filepath, 'mapper.h5'), by_name, skip_mismatch, options)
 		self.generator.load_weights(os.path.join(filepath, 'generator.h5'), by_name, skip_mismatch, options)
 		self.discriminator.load_weights(os.path.join(filepath, 'discriminator.h5'), by_name, skip_mismatch, options)
-		self.step = tf.saved_model.load(self.step, os.path.join(filepath, 'step.h5'))
+		with open(os.path.join(filepath, 'step.txt'), 'r') as f:
+			self.step.assign(int(f.read()))

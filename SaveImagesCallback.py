@@ -8,7 +8,6 @@ import os
 class SaveImagesCallback(Callback):
 	def __init__(self):
 		super().__init__()
-		self.count = 0
 		self.latent = tf.random.normal((OUTPUT_SHAPE[0] * OUTPUT_SHAPE[1], LATENT_DIM), seed=SEED)
 
 	def save_images(self, images):
@@ -30,11 +29,10 @@ class SaveImagesCallback(Callback):
 			os.makedirs(IMAGE_OUTPUT_PATH)
 
 		img = Image.fromarray(output_image)
-		img.save(os.path.join(IMAGE_OUTPUT_PATH, f'image_{self.count // SAVE_IMAGE_FREQUENCY}.png'))
+		img.save(os.path.join(IMAGE_OUTPUT_PATH, f'image_{self.model.step // SAVE_IMAGE_FREQUENCY}.png'))
 		img.save(os.path.join(IMAGE_OUTPUT_PATH, 'last_image.png'))
 
 	def on_batch_end(self, batch, logs=None):
 		images = (self.model.predict(self.latent) + 1) * 127.5
-		if self.count % SAVE_IMAGE_FREQUENCY == 0:
+		if self.model.step % SAVE_IMAGE_FREQUENCY == 0:
 			self.save_images(images)
-		self.count += 1
